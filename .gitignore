@@ -14,9 +14,3 @@ instance/
 .env
 
 /app/static/uploads/
-
-*.onnx
-
-*.joblib
-*.csv
-*.pkl
