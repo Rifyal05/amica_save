@@ -1,0 +1,40 @@
+{% extends "auth_layout.html" %}
+
+{% block title %}Daftar - Amica Web{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="login-box" style="max-width: 480px;">
+        <h1 class="title" style="text-align: center; font-size: 2.5rem;">Buat Akun Baru</h1>
+        <p class="subtitle" style="text-align: center;">Satu langkah lagi untuk bergabung dengan komunitas kami.</p>
+
+        <div id="error-message" class="error-box"></div>
+        <div id="success-message" class="success-box"></div>
+
+        <form id="register-form">
+            <div class="input-group">
+                <label for="display_name">Nama Tampilan</label>
+                <input type="text" id="display_name" name="display_name" required>
+            </div>
+            <div class="input-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="input-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" id="register-button" class="btn-primary" style="padding: 1.1rem; margin-top: 1.5rem;">Daftar</button>
+        </form>
+
+        <div class="register-link" style="margin-top: 2rem;">
+            <span>Sudah punya akun? <a href="{{ url_for('web.login_page') }}">Masuk di sini</a></span>
+        </div>
+    </div>
+</div>
+{% endblock %}

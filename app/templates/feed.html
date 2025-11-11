@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% block title %}Feed Komunitas - Amica Web{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Komunitas</h1>
+    <div class="header-actions">
+        <button class="icon-button"><img src="{{ url_for('static', filename='images/icons/notification.png') }}" alt="Notifikasi"></button>
+        <button class="icon-button"><img src="{{ url_for('static', filename='images/icons/add.png') }}" alt="Buat Post"></button>
+    </div>
+</div>
+
+<div id="feed-posts" class="feed-container">
+    <div id="loading-spinner" class="spinner"></div>
+</div>
+
+<template id="post-template">
+    <article class="post-card" data-post-id="">
+        <div class="post-header">
+            <img class="author-avatar" src="" alt="Author Avatar">
+            <div class="author-info">
+                <span class="author-name"></span>
+                <span class="post-timestamp"></span>
+            </div>
+            <button class="icon-button more-button"><img src="{{ url_for('static', filename='images/icons/more.png') }}" alt="More"></button>
+        </div>
+        <p class="post-caption"></p>
+        <div class="tags-container"></div>
+        <div class="post-image-container">
+            <img class="post-image" src="" alt="Post Image">
+        </div>
+        <div class="post-actions">
+            <div class="action-group">
+                <button class="icon-button like-button">
+                    <img class="icon-heart-outline" src="{{ url_for('static', filename='images/icons/heart.png') }}">
+                    <img class="icon-heart-filled" src="{{ url_for('static', filename='images/icons/heart-filled.png') }}" style="display: none;">
+                </button>
+                <span class="like-count"></span>
+            </div>
+            <div class="action-group">
+                <button class="icon-button"><img src="{{ url_for('static', filename='images/icons/comment.png') }}"></button>
+                <span class="comment-count"></span>
+            </div>
+            <div class="action-group" style="margin-left: auto;">
+                <button class="icon-button save-button">
+                    <img class="icon-bookmark-outline" src="{{ url_for('static', filename='images/icons/bookmark.png') }}">
+                    <img class="icon-bookmark-filled" src="{{ url_for('static', filename='images/icons/bookmark-filled.png') }}" style="display: none;">
+                </button>
+            </div>
+        </div>
+    </article>
+</template>
+{% endblock %}

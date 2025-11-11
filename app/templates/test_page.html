@@ -1,0 +1,37 @@
+{% extends "test_layout.html" %}
+{% block title %}Halaman Tes - Amica Web{% endblock %}
+
+{% block content %}
+<div class="content-header" style="padding: 2rem 2rem 0 2rem;">
+    <h1>Halaman Uji Coba Moderasi</h1>
+</div>
+
+<div class="test-container" style="padding: 2rem;">
+    <div class="test-card">
+        <h2>Uji Coba Moderasi Postingan (Teks)</h2>
+        <form id="text-test-form">
+            <textarea id="test-caption" placeholder="Ketik kalimat untuk diuji..."></textarea>
+            <button type="submit" id="text-test-button" class="btn-primary">Uji Teks</button>
+        </form>
+        <div id="text-result" class="result-box">Hasil akan muncul di sini.</div>
+    </div>
+
+    <div class="test-card">
+        <h2>Uji Coba Moderasi Gambar</h2>
+        <form id="image-test-form">
+            <input type="file" id="test-image" accept="image/*">
+            <button type="submit" id="image-test-button" class="btn-primary">Uji Gambar</button>
+        </form>
+        <div id="image-result" class="result-box">Hasil akan muncul di sini.</div>
+    </div>
+    
+    <div class="test-card">
+        <h2>Uji Coba Sentimen Feedback</h2>
+        <form id="feedback-test-form">
+            <textarea id="test-feedback" placeholder="Ketik ulasan atau feedback..."></textarea>
+            <button type="submit" id="feedback-test-button" class="btn-primary">Uji Sentimen</button>
+        </form>
+        <div id="feedback-result" class="result-box">Hasil akan muncul di sini.</div>
+    </div>
+</div>
+{% endblock %}
