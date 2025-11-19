@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id" 
+      x-data="{ isDarkMode: localStorage.getItem('isDarkMode') === 'true' }" 
+      x-init="$watch('isDarkMode', val => localStorage.setItem('isDarkMode', val))"
+      x-bind:class="{ 'dark': isDarkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Amica Web{% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#0052FF',
+            },
+            animation: {
+              'gentle-float': 'gentleFloat 15s ease-in-out infinite',
+            },
+            keyframes: {
+              gentleFloat: {
+                '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+                '50%': { transform: 'translateY(-20px) rotate(5deg)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300 overflow-hidden">
+
+    <div class="absolute inset-0 -z-10">
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-blue-200 dark:bg-blue-900/40 rounded-full opacity-30 animate-gentle-float"></div>
+        <div class="absolute -bottom-40 -right-20 w-80 h-80 bg-purple-200 dark:bg-purple-900/40 rounded-full opacity-30 animate-gentle-float [animation-delay:-7s]"></div>
+    </div>
+
+    <div class="absolute top-5 right-5 z-10">
+        <button x-on:click="isDarkMode = !isDarkMode" 
+                class="p-2 rounded-full bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm shadow-md transition-transform hover:scale-110">
+            <svg x-show="isDarkMode" x-cloak class="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg x-show="!isDarkMode" x-cloak class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+    </div>
+
+    {% block content %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</body>
+</html>

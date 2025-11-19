@@ -1,210 +1,197 @@
+// ========================================================================
+//  EVENT LISTENERS - Menentukan fungsi mana yang akan dijalankan
+// ========================================================================
+
+// Kita hanya menjalankan listener ini untuk halaman feed,
+// karena fungsi login dan register dipanggil langsung dari HTML (Alpine.js)
 document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('login-form')) {
-        handleLoginPage();
-    }
-    if (document.getElementById('register-form')) {
-        handleRegisterPage();
-    }
-    if (document.getElementById('forgot-password-form')) {
-        handleForgotPasswordPage();
-    }
     if (document.getElementById('feed-posts')) {
         handleFeedPage();
     }
 });
 
-function handleLoginPage() {
-    const loginForm = document.getElementById('login-form');
-    const loginButton = document.getElementById('login-button');
+
+// ========================================================================
+//  FUNGSI UNTUK ALUR AUTENTIKASI (Login & Register)
+// ========================================================================
+
+/**
+ * Menangani proses submit form login.
+ * Fungsi ini dipanggil oleh Alpine.js dari file login.html.
+ * @param {Event} event - Event object dari form submission.
+ */
+async function handleLoginSubmit(event) {
+    // Dapatkan elemen form dan container Alpine-nya
+    const loginForm = event.target;
+    const container = loginForm.closest('[x-data]');
+
+    // Siapkan data untuk dikirim ke API
+    const formData = new FormData(loginForm);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Siapkan elemen untuk menampilkan pesan error
     const errorMessage = document.getElementById('error-message');
-    loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        loginButton.disabled = true;
-        loginButton.textContent = 'Memproses...';
-        errorMessage.style.display = 'none';
-        const formData = new FormData(loginForm);
-        const data = Object.fromEntries(formData.entries());
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-            if (response.ok) {
-                localStorage.setItem('authToken', result.token);
-                localStorage.setItem('currentUser', JSON.stringify(result.user));
-                window.location.href = '/feed';
-            } else {
-                errorMessage.textContent = result.error || 'Terjadi kesalahan.';
-                errorMessage.style.display = 'block';
-            }
-        } catch (error) {
-            errorMessage.textContent = 'Tidak bisa terhubung ke server.';
-            errorMessage.style.display = 'block';
-        } finally {
-            loginButton.disabled = false;
-            loginButton.textContent = 'Masuk';
+    errorMessage.classList.add('hidden');
+    
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+            // Jika berhasil, simpan token & data user, lalu arahkan ke feed
+            localStorage.setItem('authToken', result.token);
+            localStorage.setItem('currentUser', JSON.stringify(result.user));
+            window.location.href = '/feed';
+        } else {
+            // Jika gagal, tampilkan pesan error dari API
+            errorMessage.textContent = result.error || 'Terjadi kesalahan.';
+            errorMessage.classList.remove('hidden');
         }
-    });
+    } catch (error) {
+         // Jika server tidak bisa dihubungi
+         errorMessage.textContent = 'Tidak bisa terhubung ke server.';
+         errorMessage.classList.remove('hidden');
+    } finally {
+        // Apapun hasilnya, matikan status loading
+        container.__x.data.isLoading = false;
+    }
 }
 
-function handleRegisterPage() {
-    const registerForm = document.getElementById('register-form');
-    const registerButton = document.getElementById('register-button');
+/**
+ * Menangani proses submit form registrasi.
+ * Fungsi ini dipanggil oleh Alpine.js dari file register.html.
+ * @param {Event} event - Event object dari form submission.
+ */
+async function handleRegisterSubmit(event) {
+    const registerForm = event.target;
+    const container = registerForm.closest('[x-data]');
+
+    const formData = new FormData(registerForm);
+    const data = Object.fromEntries(formData.entries());
+    
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
-    registerForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
-        registerButton.disabled = true;
-        registerButton.textContent = 'Memproses...';
-        errorMessage.style.display = 'none';
-        successMessage.style.display = 'none';
-        const formData = new FormData(registerForm);
-        const data = Object.fromEntries(formData.entries());
-        try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            const result = await response.json();
-            if (response.ok) {
-                registerForm.reset();
-                successMessage.textContent = 'Registrasi berhasil! Anda akan diarahkan ke halaman login.';
-                successMessage.style.display = 'block';
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 3000);
-            } else {
-                errorMessage.textContent = result.error || 'Terjadi kesalahan saat registrasi.';
-                errorMessage.style.display = 'block';
-            }
-        } catch (error) {
-            errorMessage.textContent = 'Tidak bisa terhubung ke server.';
-            errorMessage.style.display = 'block';
-        } finally {
-            if (!successMessage.style.display || successMessage.style.display === 'none') {
-                registerButton.disabled = false;
-                registerButton.textContent = 'Daftar';
-            }
+    errorMessage.classList.add('hidden');
+    successMessage.classList.add('hidden');
+
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+            // Jika berhasil, reset form, tampilkan pesan sukses
+            registerForm.reset();
+            successMessage.textContent = 'Registrasi berhasil! Anda akan diarahkan ke halaman login...';
+            successMessage.classList.remove('hidden');
+            
+            // Tunggu 3 detik sebelum mengarahkan ke halaman login
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 3000);
+        } else {
+            // Jika gagal, tampilkan pesan error dan matikan loading
+            errorMessage.textContent = result.error || 'Terjadi kesalahan saat registrasi.';
+            errorMessage.classList.remove('hidden');
+            container.__x.data.isLoading = false;
         }
-    });
+    } catch (error) {
+         // Jika server tidak bisa dihubungi, matikan juga loading
+         errorMessage.textContent = 'Tidak bisa terhubung ke server.';
+         errorMessage.classList.remove('hidden');
+         container.__x.data.isLoading = false;
+    }
 }
 
-function handleForgotPasswordPage() {
-    const forgotPasswordForm = document.getElementById('forgot-password-form');
-    forgotPasswordForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        alert('Fitur Lupa Password sedang dalam pengembangan. API backend belum tersedia.');
-    });
-}
 
+// ========================================================================
+//  FUNGSI UNTUK HALAMAN UTAMA (Feed)
+// ========================================================================
+
+/**
+ * Fungsi inisialisasi untuk halaman feed.
+ * Memeriksa token dan memulai proses pengambilan data postingan.
+ */
 async function handleFeedPage() {
-    const logoutButton = document.getElementById('logout-button');
     const token = localStorage.getItem('authToken');
     if (!token) {
+        // Jika tidak ada token, paksa kembali ke halaman login
         window.location.href = '/login';
         return;
     }
-    logoutButton.addEventListener('click', () => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('currentUser');
-        window.location.href = '/login';
-    });
-    updateUserInfoSidebar();
     await fetchAndDisplayPosts(token);
 }
 
+/**
+ * Mengambil data postingan dari API dan menampilkannya di halaman.
+ * @param {string} token - JWT token untuk otorisasi.
+ */
 async function fetchAndDisplayPosts(token) {
     const feedContainer = document.getElementById('feed-posts');
     const loadingSpinner = document.getElementById('loading-spinner');
-    const API_BASE_URL = `${window.location.protocol}//${window.location.host}`;
+    const postTemplate = document.getElementById('post-card-template');
+
     try {
         const response = await fetch('/api/posts', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (loadingSpinner) loadingSpinner.style.display = 'none';
+
         if (!response.ok) {
-            if (response.status === 401) {
+            if (response.status === 401) { // Token tidak valid atau expired
                 localStorage.removeItem('authToken');
                 window.location.href = '/login';
             }
-            throw new Error(`Gagal mengambil data: ${response.status}`);
+            throw new Error(`Gagal mengambil data: ${response.statusText}`);
         }
+
         const data = await response.json();
+        
+        if(loadingSpinner) loadingSpinner.style.display = 'none';
+
         if (data.posts && data.posts.length > 0) {
             data.posts.forEach(post => {
-                const postElement = createPostElement(post, API_BASE_URL);
-                feedContainer.appendChild(postElement);
+                const postCard = postTemplate.content.cloneNode(true);
+                postCard.querySelector('.author-name').textContent = post.author.display_name;
+                postCard.querySelector('.author-avatar').src = post.author.avatar_url || 'https://i.pravatar.cc/150';
+                postCard.querySelector('.post-timestamp').textContent = timeAgo(post.created_at);
+                postCard.querySelector('.post-caption').textContent = post.caption;
+                postCard.querySelector('.like-count').textContent = post.likes_count;
+                postCard.querySelector('.comment-count').textContent = post.comments_count;
+                if (post.image_url) {
+                    const imgContainer = postCard.querySelector('.post-image-container');
+                    const imgElement = postCard.querySelector('.post-image');
+                    imgElement.src = post.image_url;
+                    imgContainer.classList.remove('hidden');
+                }
+                feedContainer.appendChild(postCard);
             });
         } else {
-            feedContainer.innerHTML = '<p style="text-align: center; color: #6c757d;">Belum ada postingan untuk ditampilkan.</p>';
+            feedContainer.innerHTML = '<p class="text-center text-gray-500">Belum ada postingan untuk ditampilkan.</p>';
         }
+
     } catch (error) {
-        if (loadingSpinner) loadingSpinner.style.display = 'none';
-        feedContainer.innerHTML = `<p style="text-align: center; color: red;">Terjadi kesalahan: ${error.message}</p>`;
+        console.error("Error fetching posts:", error);
+        if(loadingSpinner) loadingSpinner.textContent = `Gagal memuat postingan. ${error.message}`;
     }
 }
 
-function createPostElement(post, baseUrl) {
-    const template = document.getElementById('post-template');
-    const postCard = template.content.cloneNode(true).querySelector('.post-card');
-    postCard.dataset.postId = post.id;
-    const fullImageUrl = post.image_url ? `${baseUrl}${post.image_url}` : null;
-    postCard.querySelector('.author-avatar').src = post.author.avatar_url || 'https://i.pravatar.cc/150';
-    postCard.querySelector('.author-name').textContent = post.author.display_name;
-    postCard.querySelector('.post-timestamp').textContent = timeAgo(post.created_at);
-    postCard.querySelector('.post-caption').textContent = post.caption;
-    const tagsContainer = postCard.querySelector('.tags-container');
-    if (post.tags && post.tags.length > 0) {
-        post.tags.forEach(tag => {
-            const tagElement = document.createElement('span');
-            tagElement.className = 'tag-chip';
-            tagElement.textContent = `#${tag}`;
-            tagsContainer.appendChild(tagElement);
-        });
-    }
-    const imageContainer = postCard.querySelector('.post-image-container');
-    if (fullImageUrl) {
-        postCard.querySelector('.post-image').src = fullImageUrl;
-        imageContainer.style.display = 'block';
-    } else {
-        imageContainer.style.display = 'none';
-    }
-    const likeCountSpan = postCard.querySelector('.like-count');
-    const commentCountSpan = postCard.querySelector('.comment-count');
-    likeCountSpan.textContent = post.likes_count;
-    commentCountSpan.textContent = post.comments_count;
-    const likeButton = postCard.querySelector('.like-button');
-    likeButton.addEventListener('click', () => handleLike(post.id, likeButton, likeCountSpan));
-    return postCard;
-}
 
-async function handleLike(postId, button, countSpan) {
-    const token = localStorage.getItem('authToken');
-    button.disabled = true;
-    try {
-        const response = await fetch(`/api/posts/${postId}/like`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await response.json();
-        if (response.ok) {
-            countSpan.textContent = data.likes_count;
-            button.classList.toggle('liked', data.liked);
-            const heartOutline = button.querySelector('.icon-heart-outline');
-            const heartFilled = button.querySelector('.icon-heart-filled');
-            heartOutline.style.display = data.liked ? 'none' : 'block';
-            heartFilled.style.display = data.liked ? 'block' : 'none';
-        }
-    } catch (error) {
-        console.error("Gagal melakukan like:", error);
-    } finally {
-        button.disabled = false;
-    }
-}
+// ========================================================================
+//  FUNGSI BANTU (Utility)
+// ========================================================================
 
+/**
+ * 
+ * @param {string} timestamp
+ * @returns {string}
+ */
 function timeAgo(timestamp) {
     const now = new Date();
     const past = new Date(timestamp);
@@ -215,14 +202,4 @@ function timeAgo(timestamp) {
     interval = seconds / 3600; if (interval > 1) return Math.floor(interval) + " jam lalu";
     interval = seconds / 60; if (interval > 1) return Math.floor(interval) + " menit lalu";
     return Math.floor(seconds) + " detik lalu";
-}
-
-function updateUserInfoSidebar() {
-    const userString = localStorage.getItem('currentUser');
-    if (!userString) return;
-    const user = JSON.parse(userString);
-    const nameSpan = document.getElementById('sidebar-user-name');
-    const avatarImg = document.getElementById('sidebar-user-avatar');
-    if (nameSpan) nameSpan.textContent = user.display_name || "Pengguna";
-    if (avatarImg) avatarImg.src = user.avatar_url || 'https://i.pravatar.cc/150';
 }
