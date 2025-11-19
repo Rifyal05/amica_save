@@ -1,0 +1,38 @@
+<div id="feed-posts" class="space-y-6">
+    <p id="loading-spinner" class="text-center text-gray-500">Memuat postingan...</p>
+</div>
+
+<template id="post-card-template">
+    <article class="post-card bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="p-5">
+            <div class="flex items-center space-x-3">
+                <img class="author-avatar h-12 w-12 rounded-full object-cover" src="" alt="Avatar">
+                <div>
+                    <p class="author-name text-sm font-semibold text-gray-900"></p>
+                    <p class="post-timestamp text-xs text-gray-500"></p>
+                </div>
+            </div>
+
+            <p class="post-caption mt-4 text-gray-700"></p>
+            <div class="post-image-container mt-4 -mx-5 hidden">
+                <img class="post-image w-full h-auto object-cover" src="" alt="Post Image">
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center px-5 py-2 bg-gray-50 border-t border-gray-200">
+            <div class="flex items-center space-x-4 text-gray-500">
+                <button class="flex items-center space-x-1 hover:text-red-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.5l1.318-1.182a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"></path></svg>
+                    <span class="like-count font-semibold text-sm"></span>
+                </button>
+                <button class="flex items-center space-x-1 hover:text-blue-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <span class="comment-count font-semibold text-sm"></span>
+                </button>
+            </div>
+            <button class="hover:text-primary">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+            </button>
+        </div>
+    </article>
+</template>

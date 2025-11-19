@@ -1,0 +1,54 @@
+{% extends "layout/layout_auth.html" %}
+{% block title %}Daftar - Amica Web{% endblock %}
+{% block content %}
+<div class="flex items-center justify-center min-h-screen px-4 py-8" 
+     x-data="{ isLoading: false }"
+     @loading:start.window="isLoading = true" 
+     @loading:stop.window="isLoading = false">
+     
+    <div class="w-full max-w-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-xl rounded-2xl overflow-hidden">
+        <div class="p-8 md:p-12" x-data="{ password: '', confirmPassword: '', passwordsMatch() { return this.password === this.confirmPassword && this.password.length > 0; } }">
+            <h1 class="text-4xl font-bold mb-2">Buat Akun Baru</h1>
+            <p class="font-light text-gray-500 dark:text-gray-400 mb-8">
+                Satu langkah lagi untuk bergabung dengan komunitas kami.
+            </p>
+            <div id="error-message" class="hidden p-3 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert"></div>
+            <div id="success-message" class="hidden p-3 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert"></div>
+            <form id="register-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                    <div class="py-2">
+                        <label for="display_name" class="text-sm font-semibold">Nama Tampilan</label>
+                        <input type="text" id="display_name" name="display_name" class="w-full mt-2 p-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 rounded-lg" required maxlength="50">
+                    </div>
+                    <div class="py-2">
+                        <label for="username" class="text-sm font-semibold">Username</label>
+                        <input type="text" id="username" name="username" class="w-full mt-2 p-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 rounded-lg" required minlength="4" maxlength="25" pattern="[a-zA-Z0-9_]+" title="Hanya boleh berisi huruf, angka, dan underscore (_).">
+                    </div>
+                </div>
+                <div class="py-2">
+                    <label for="email" class="text-sm font-semibold">Email</label>
+                    <input type="email" id="email" name="email" class="w-full mt-2 p-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 rounded-lg" required maxlength="255">
+                </div>
+                <div class="py-2">
+                    <label for="password" class="text-sm font-semibold">Password</label>
+                    <input type="password" id="password" name="password" x-model="password" class="w-full mt-2 p-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 rounded-lg" required minlength="8" maxlength="100" title="Minimal 8 karakter.">
+                </div>
+                <div class="py-2">
+                    <label for="confirm_password" class="text-sm font-semibold">Konfirmasi Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" x-model="confirmPassword" class="w-full mt-2 p-3 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 rounded-lg" required maxlength="100">
+                    <p x-show="confirmPassword && !passwordsMatch()" x-cloak class="text-red-500 text-xs mt-1">Password tidak cocok.</p>
+                </div>
+                <button type="submit" id="register-button" :disabled="isLoading || (confirmPassword && !passwordsMatch())" class="flex items-center justify-center w-full bg-primary text-white font-bold p-3 rounded-lg mt-6 transition disabled:opacity-50">
+                    <svg x-show="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <span x-show="isLoading">Mendaftarkan...</span>
+                    <span x-show="!isLoading">Daftar</span>
+                </button>
+            </form>
+            <div class="text-center text-gray-500 dark:text-gray-400 mt-8">
+                Sudah punya akun?
+                <a href="{{ url_for('web.login_page') }}" class="font-bold text-primary hover:underline">Masuk di sini</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
