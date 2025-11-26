@@ -1,19 +1,8 @@
-// ========================================================================
-//  EVENT LISTENERS - Menentukan fungsi mana yang akan dijalankan
-// ========================================================================
-
-// Kita hanya menjalankan listener ini untuk halaman feed,
-// karena fungsi login dan register dipanggil langsung dari HTML (Alpine.js)
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('feed-posts')) {
         handleFeedPage();
     }
 });
-
-
-// ========================================================================
-//  FUNGSI UNTUK ALUR AUTENTIKASI (Login & Register)
-// ========================================================================
 
 /**
  * Menangani proses submit form login.
@@ -111,18 +100,9 @@ async function handleRegisterSubmit(event) {
 }
 
 
-// ========================================================================
-//  FUNGSI UNTUK HALAMAN UTAMA (Feed)
-// ========================================================================
-
-/**
- * Fungsi inisialisasi untuk halaman feed.
- * Memeriksa token dan memulai proses pengambilan data postingan.
- */
 async function handleFeedPage() {
     const token = localStorage.getItem('authToken');
     if (!token) {
-        // Jika tidak ada token, paksa kembali ke halaman login
         window.location.href = '/login';
         return;
     }
@@ -144,7 +124,7 @@ async function fetchAndDisplayPosts(token) {
         });
 
         if (!response.ok) {
-            if (response.status === 401) { // Token tidak valid atau expired
+            if (response.status === 401) {
                 localStorage.removeItem('authToken');
                 window.location.href = '/login';
             }
@@ -182,10 +162,6 @@ async function fetchAndDisplayPosts(token) {
     }
 }
 
-
-// ========================================================================
-//  FUNGSI BANTU (Utility)
-// ========================================================================
 
 /**
  * 

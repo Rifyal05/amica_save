@@ -1,0 +1,202 @@
+{% extends "layout/layout_app.html" %}
+{% block title %}Panduan - Amica{% endblock %}
+
+{% block content %}
+<div x-data="guidebookData()" class="relative min-h-screen pb-20">
+
+    <div class="max-w-6xl mx-auto px-4 py-8 space-y-8">
+
+        <!-- 1. HEADER SECTION (Title, Search, & SDQ Button) -->
+        <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div class="flex-1">
+                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-2">Panduan & Edukasi</h1>
+                <p class="text-gray-500 dark:text-gray-400">Wawasan terpercaya dan aspek hukum untuk keluarga.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                <!-- Search Bar -->
+                <div class="relative w-full sm:w-72 group">
+                    <input type="text" x-model="search" placeholder="Cari artikel..." 
+                           class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-cardDark border-none shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent text-sm transition-all placeholder-gray-400 dark:text-white">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+
+                <!-- TOMBOL SDQ (Deteksi Dini) -->
+                <a href="/api/sdq/quiz" class="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white hover:bg-blue-600 shadow-lg shadow-blue-500/30 transition-all transform hover:scale-105 active:scale-95 whitespace-nowrap">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    <span class="font-bold text-sm">Tes SDQ</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. CATEGORY PILLS -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2">
+            <template x-for="cat in categories" :key="cat">
+                <button @click="activeCategory = cat" 
+                        class="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all duration-200 border"
+                        :class="activeCategory === cat 
+                            ? 'bg-gray-900 dark:bg-white text-white dark:text-black border-transparent shadow-md' 
+                            : 'bg-white dark:bg-cardDark text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-50 dark:hover:bg-white/5'">
+                    <span x-text="cat"></span>
+                </button>
+            </template>
+        </div>
+
+        <!-- 3. HERO ARTICLE (Featured - Clickable) -->
+        <div x-show="!search && activeCategory === 'Semua'" x-transition>
+            <!-- LINK KE DETAIL -->
+            <a href="/guidebook/1" class="block group">
+                <article class="relative bg-white dark:bg-cardDark rounded-[2.5rem] overflow-hidden shadow-sm border-none transition-all duration-300 hover:shadow-xl">
+                    <div class="flex flex-col md:flex-row h-auto md:h-[420px]">
+                        <!-- Image -->
+                        <div class="w-full md:w-3/5 relative overflow-hidden h-64 md:h-auto">
+                            <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1932&auto=format&fit=crop" 
+                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                 alt="Featured Article">
+                            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                        </div>
+                        <!-- Content -->
+                        <div class="w-full md:w-2/5 p-8 flex flex-col justify-center relative z-10">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 text-primary text-[10px] font-bold tracking-wider uppercase">Highlight</span>
+                                <span class="px-2.5 py-1 rounded-md bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[10px] font-bold tracking-wider uppercase">Pola Asuh</span>
+                            </div>
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4 leading-tight group-hover:text-primary transition-colors">
+                                Membangun Komunikasi Positif dengan Remaja
+                            </h2>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6 line-clamp-3 text-sm leading-relaxed">
+                                Pelajari teknik mendengarkan aktif dan cara menciptakan ruang aman agar anak remaja mau terbuka bercerita kepada Anda tanpa merasa dihakimi.
+                            </p>
+                            <div class="flex items-center gap-3 mt-auto border-t border-gray-100 dark:border-gray-700 pt-4">
+                                <img src="https://i.pravatar.cc/150?img=32" class="w-9 h-9 rounded-full ring-2 ring-white dark:ring-gray-600">
+                                <div class="text-xs">
+                                    <p class="font-bold text-gray-900 dark:text-white">Dr. Seto Mulyadi</p>
+                                    <p class="text-gray-500">5 min baca</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </a>
+        </div>
+
+        <!-- 4. ARTICLE GRID (Clickable) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="article in filteredArticles" :key="article.id">
+                <!-- LINK KE DETAIL DINAMIS -->
+                <a :href="'/guidebook/' + article.id" class="block group h-full">
+                    
+                    <article class="bg-white dark:bg-cardDark rounded-3xl overflow-hidden shadow-sm border-none hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                        <!-- Image -->
+                        <div class="relative h-52 overflow-hidden">
+                            <img :src="article.image_url" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2.5 py-1 rounded-md bg-white/90 dark:bg-black/80 backdrop-blur-md text-primary text-[10px] font-bold uppercase tracking-wider shadow-sm" x-text="article.category"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="p-5 flex flex-col flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2" x-text="article.title"></h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 mb-4 flex-1" x-text="article.content"></p>
+                            
+                            <!-- Footer -->
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/5 mt-auto">
+                                <div class="flex items-center gap-1.5 text-gray-400 text-xs font-medium">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span x-text="article.read_time + ' min baca'"></span>
+                                </div>
+                                <div class="p-2 rounded-full bg-gray-50 dark:bg-white/5 group-hover:bg-primary group-hover:text-white dark:group-hover:bg-primary text-gray-400 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                </a>
+            </template>
+        </div>
+
+        <!-- Empty State -->
+        <div x-show="filteredArticles.length === 0" class="text-center py-20" x-cloak>
+            <div class="inline-block p-4 rounded-full bg-gray-100 dark:bg-white/5 mb-4">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <p class="text-gray-500">Artikel tidak ditemukan.</p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function guidebookData() {
+        return {
+            search: '',
+            activeCategory: 'Semua',
+            categories: ['Semua', 'Kesehatan Mental', 'Pola Asuh', 'Hukum', 'Sekolah', 'Tips Praktis'],
+            
+            // Data Mockup (Sesuai struktur DB)
+            articles: [
+                {
+                    id: 1,
+                    title: 'Undang-Undang Perlindungan Anak: Apa yang Perlu Orang Tua Tahu?',
+                    category: 'Hukum',
+                    content: 'Memahami payung hukum perlindungan anak di Indonesia agar Anda bisa mengambil tindakan tepat jika terjadi pelanggaran hak anak.',
+                    image_url: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2012&auto=format&fit=crop',
+                    read_time: 7
+                },
+                {
+                    id: 2,
+                    title: 'Mengenali Tanda-tanda Bullying di Sekolah',
+                    category: 'Sekolah',
+                    content: 'Bullying bisa terjadi pada siapa saja. Ketahui tanda-tanda perubahan perilaku pada anak agar Anda bisa bertindak lebih cepat.',
+                    image_url: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=2000&auto=format&fit=crop',
+                    read_time: 5
+                },
+                {
+                    id: 3,
+                    title: 'Pentingnya "Me Time" bagi Orang Tua',
+                    category: 'Kesehatan Mental',
+                    content: 'Menjadi orang tua itu melelahkan. Mengapa meluangkan waktu untuk diri sendiri justru membuat Anda menjadi orang tua yang lebih baik?',
+                    image_url: 'https://images.unsplash.com/photo-1515023115689-589c33041d3c?q=80&w=2487&auto=format&fit=crop',
+                    read_time: 3
+                },
+                {
+                    id: 4,
+                    title: 'Prosedur Melaporkan Kekerasan pada Anak ke Pihak Berwajib',
+                    category: 'Hukum',
+                    content: 'Langkah-langkah hukum yang aman dan tepat saat Anda mencurigai adanya tindak kekerasan terhadap anak di lingkungan sekitar.',
+                    image_url: 'https://images.unsplash.com/photo-1453945619913-79ec89a82c51?q=80&w=2082&auto=format&fit=crop',
+                    read_time: 8
+                },
+                {
+                    id: 5,
+                    title: 'Cara Mengatasi Tantrum pada Balita',
+                    category: 'Pola Asuh',
+                    content: 'Tantrum adalah bagian normal dari perkembangan. Berikut strategi tenang untuk menghadapinya tanpa emosi berlebih.',
+                    image_url: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=2040&auto=format&fit=crop',
+                    read_time: 6
+                },
+                {
+                    id: 6,
+                    title: 'Menu Bekal Sehat & Cepat untuk Sekolah',
+                    category: 'Tips Praktis',
+                    content: 'Ide resep bekal yang nutrisinya seimbang tapi bisa disiapkan dalam waktu kurang dari 15 menit.',
+                    image_url: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=2070&auto=format&fit=crop',
+                    read_time: 4
+                }
+            ],
+            get filteredArticles() {
+                return this.articles.filter(article => {
+                    const matchesSearch = article.title.toLowerCase().includes(this.search.toLowerCase()) || 
+                                          article.content.toLowerCase().includes(this.search.toLowerCase());
+                    const matchesCategory = this.activeCategory === 'Semua' || article.category === this.activeCategory;
+                    return matchesSearch && matchesCategory;
+                });
+            }
+        }
+    }
+</script>
+{% endblock %}

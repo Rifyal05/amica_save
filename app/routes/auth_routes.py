@@ -3,7 +3,7 @@ from ..models import User
 from ..database import db
 from flask_bcrypt import Bcrypt
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 
 auth_bp = Blueprint('auth', __name__)
@@ -11,7 +11,6 @@ bcrypt = Bcrypt()
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    print("--- Endpoint /register dipanggil ---")
     try:
         data = request.get_json()
         if not data:
@@ -69,7 +68,7 @@ def login():
     
     token = jwt.encode({
         'user_id': str(user.id),
-        'exp': datetime.utcnow() + timedelta(days=30)
+        'exp': datetime.now(timezone.utc) + timedelta(days=30)
     }, os.environ.get('SECRET_KEY'), algorithm="HS256")
     
     return jsonify({

@@ -1,0 +1,131 @@
+{% extends "layout/layout_app.html" %}
+{% block title %}Jelajahi - Amica{% endblock %}
+
+{% block content %}
+<div x-data="discoverData()" class="relative min-h-screen pb-20">
+
+    <div class="max-w-6xl mx-auto px-4 py-8 space-y-10">
+
+        <!-- 1. HEADER & SEARCH HERO -->
+        <div class="text-center space-y-6 max-w-2xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                Temukan Inspirasi Baru
+            </h1>
+            
+            <!-- Search Bar Besar -->
+            <div class="relative group">
+                <div class="absolute inset-0 bg-primary/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="relative bg-white dark:bg-cardDark rounded-[2rem] shadow-lg hover:shadow-xl transition-all duration-300 flex items-center p-2 border border-transparent group-hover:border-primary/30">
+                    <div class="pl-4 text-gray-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" x-model="searchQuery" placeholder="Cari topik, orang, atau tagar..." 
+                           class="w-full bg-transparent border-none focus:ring-0 text-lg text-gray-900 dark:text-white placeholder-gray-400 h-12 px-4">
+                    <button class="px-6 py-2.5 rounded-3xl bg-primary text-white font-bold text-sm shadow-lg shadow-blue-500/30 hover:scale-105 transition-transform">
+                        Cari
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. TRENDING TAGS (Pills) -->
+        <div class="space-y-3">
+            <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider px-1">Sedang Hangat</h3>
+            <div class="flex flex-wrap gap-3">
+                <template x-for="tag in trendingTags" :key="tag">
+                    <a href="#" class="px-5 py-2.5 rounded-2xl bg-white dark:bg-cardDark text-gray-600 dark:text-gray-300 text-sm font-bold hover:text-primary hover:bg-blue-50 dark:hover:bg-white/10 transition-all shadow-sm border-none">
+                        <span class="opacity-50 mr-1">#</span><span x-text="tag"></span>
+                    </a>
+                </template>
+            </div>
+        </div>
+
+        <!-- 3. PEOPLE SUGGESTIONS (Horizontal Scroll) -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between px-1">
+                <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Orang yang Mungkin Anda Kenal</h3>
+                <button class="text-sm font-bold text-primary hover:underline">Lihat Semua</button>
+            </div>
+            
+            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-4">
+                <template x-for="user in suggestedUsers" :key="user.id">
+                    <div class="min-w-[160px] w-[180px] bg-white dark:bg-cardDark p-5 rounded-[2rem] flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all group border-none relative overflow-hidden">
+                        <!-- Background decorative -->
+                        <div class="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-blue-50 dark:from-blue-900/10 to-transparent"></div>
+                        
+                        <img :src="user.avatar" class="w-20 h-20 rounded-full object-cover mb-3 ring-4 ring-white dark:ring-cardDark relative z-10">
+                        
+                        <h4 class="font-bold text-gray-900 dark:text-white truncate w-full" x-text="user.name"></h4>
+                        <p class="text-xs text-gray-500 mb-4 truncate w-full" x-text="'@' + user.username"></p>
+                        
+                        <button class="w-full py-2 rounded-xl bg-gray-100 dark:bg-white/5 text-primary text-xs font-bold hover:bg-primary hover:text-white transition-all duration-300">
+                            Ikuti
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- 4. EXPLORE GRID (Masonry Style) -->
+        <div class="space-y-4">
+            <h3 class="text-xl font-extrabold text-gray-900 dark:text-white px-1">Jelajahi</h3>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <template x-for="post in explorePosts" :key="post.id">
+                    <div class="relative group rounded-3xl overflow-hidden cursor-pointer bg-gray-200 dark:bg-white/5 aspect-[4/5] or aspect-square">
+                        <img :src="post.image" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        
+                        <!-- Overlay on Hover -->
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-6 text-white">
+                            <div class="flex items-center gap-1 font-bold">
+                                <svg class="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <span x-text="post.likes"></span>
+                            </div>
+                            <div class="flex items-center gap-1 font-bold">
+                                <svg class="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+                                <span x-text="post.comments"></span>
+                            </div>
+                        </div>
+
+                        <!-- Type Indicator (Video/Multi) -->
+                        <div x-show="post.type === 'video'" class="absolute top-3 right-3">
+                            <svg class="w-6 h-6 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function discoverData() {
+        return {
+            searchQuery: '',
+            trendingTags: ['ParentingHacks', 'ResepMPASI', 'TumbuhKembang', 'KesehatanMental', 'LiburanKeluarga', 'SekolahAnak'],
+            
+            suggestedUsers: [
+                { id: 1, name: 'Dr. Tirta', username: 'dr.tirta', avatar: 'https://i.pravatar.cc/150?img=11' },
+                { id: 2, name: 'Mona Ratuliu', username: 'monaratuliu', avatar: 'https://i.pravatar.cc/150?img=5' },
+                { id: 3, name: 'Ayah Edy', username: 'ayah_edy_parenting', avatar: 'https://i.pravatar.cc/150?img=13' },
+                { id: 4, name: 'Psikolog Anak', username: 'psikolog_anak', avatar: 'https://i.pravatar.cc/150?img=9' },
+                { id: 5, name: 'Resep Bunda', username: 'resep_bunda', avatar: 'https://i.pravatar.cc/150?img=20' },
+            ],
+
+            explorePosts: [
+                { id: 1, image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=400', likes: '1.2k', comments: '34', type: 'image' },
+                { id: 2, image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=400', likes: '856', comments: '12', type: 'video' },
+                { id: 3, image: 'https://images.unsplash.com/photo-1484820540004-1426a5836e0e?q=80&w=400', likes: '2.1k', comments: '120', type: 'image' },
+                { id: 4, image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=400', likes: '543', comments: '45', type: 'image' },
+                { id: 5, image: 'https://images.unsplash.com/photo-1536640712-4d4c36ff0e4e?q=80&w=400', likes: '900', comments: '88', type: 'image' },
+                { id: 6, image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=400', likes: '3.4k', comments: '201', type: 'video' },
+                { id: 7, image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=400', likes: '1.1k', comments: '50', type: 'image' },
+                { id: 8, image: 'https://images.unsplash.com/photo-1515023115689-589c33041d3c?q=80&w=400', likes: '765', comments: '32', type: 'image' },
+            ]
+        }
+    }
+</script>
+{% endblock %}

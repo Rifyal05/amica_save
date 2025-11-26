@@ -1,0 +1,139 @@
+{% extends "layout/layout_app.html" %}
+{% block title %}Detail Artikel - Amica{% endblock %}
+
+{% block content %}
+<div x-data="articleData()" class="relative min-h-screen pb-20">
+
+    <!-- ARTICLE CONTAINER -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+
+        <!-- 1. TOP NAVIGATION (Back Button) -->
+        <div class="mb-8">
+            <a href="/guidebook" class="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-primary transition-colors group">
+                <div class="p-2 rounded-full bg-white dark:bg-white/5 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </div>
+                Kembali ke Panduan
+            </a>
+        </div>
+
+        <!-- 2. HEADER (Category, Title, Author) -->
+        <div class="space-y-6 mb-8 text-center md:text-left">
+            <div class="flex flex-col md:flex-row md:items-center gap-4 justify-between">
+                <span class="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary text-xs font-bold tracking-wider uppercase w-fit" x-text="article.category"></span>
+                <span class="text-xs font-medium text-gray-400 flex items-center gap-1 md:justify-end">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span x-text="article.read_time + ' menit baca'"></span>
+                </span>
+            </div>
+            
+            <h1 class="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight" x-text="article.title"></h1>
+            
+            <!-- Author Info -->
+            <div class="flex items-center gap-4 pt-2 justify-center md:justify-start">
+                <img :src="article.author_avatar" class="w-12 h-12 rounded-full object-cover ring-4 ring-gray-50 dark:ring-darkBg">
+                <div class="text-left">
+                    <p class="text-sm font-bold text-gray-900 dark:text-white" x-text="article.author_name"></p>
+                    <p class="text-xs text-gray-500" x-text="article.author_role"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. HERO IMAGE -->
+        <div class="relative w-full h-[300px] md:h-[500px] rounded-3xl overflow-hidden mb-10 shadow-sm">
+            <img :src="article.image_url" class="w-full h-full object-cover">
+        </div>
+
+        <!-- 4. CONTENT BODY -->
+        <div class="prose prose-lg prose-blue dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 leading-loose">
+            <!-- Intro -->
+            <p class="font-medium text-xl text-gray-900 dark:text-white mb-8" x-text="article.intro"></p>
+            
+            <!-- Dynamic Content (Simulated) -->
+            <template x-for="(para, index) in article.paragraphs" :key="index">
+                <div class="mb-6">
+                    <h3 x-show="para.heading" class="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4" x-text="para.heading"></h3>
+                    <p x-text="para.text"></p>
+                </div>
+            </template>
+        </div>
+
+        <!-- 5. ACTION FOOTER (Share & Save) -->
+        <div class="mt-12 pt-8 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <button class="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gray-100 dark:bg-white/5 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-200 hover:text-primary transition-all group">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.5l1.318-1.182a4.5 4.5 0 116.364 6.364L12 21l-7.682-7.682a4.5 4.5 0 010-6.364z"></path></svg>
+                    <span class="font-bold text-sm">Suka</span>
+                </button>
+                <button class="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gray-100 dark:bg-white/5 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-200 hover:text-primary transition-all group">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                    <span class="font-bold text-sm">Bagikan</span>
+                </button>
+            </div>
+            <button class="p-3 rounded-full bg-gray-100 dark:bg-white/5 hover:text-primary transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- RELATED ARTICLES (Section Terpisah di Bawah) -->
+    <div class="bg-white dark:bg-cardDark/50 py-12 mt-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <h3 class="text-2xl font-extrabold text-gray-900 dark:text-white mb-8">Bacaan Terkait</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <template x-for="related in relatedArticles" :key="related.id">
+                    <a :href="'/guidebook/' + related.id" class="group block">
+                        <div class="relative h-48 rounded-2xl overflow-hidden mb-4">
+                            <img :src="related.image" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                        </div>
+                        <span class="text-[10px] font-bold text-primary uppercase tracking-wider" x-text="related.category"></span>
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-white mt-2 group-hover:text-primary transition-colors leading-snug" x-text="related.title"></h4>
+                    </a>
+                </template>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function articleData() {
+        return {
+            article: {
+                title: 'Membangun Komunikasi Positif dengan Remaja di Era Digital',
+                category: 'Pola Asuh',
+                read_time: 5,
+                author_name: 'Dr. Seto Mulyadi',
+                author_role: 'Psikolog Anak Senior',
+                author_avatar: 'https://i.pravatar.cc/150?img=32',
+                image_url: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=1932&auto=format&fit=crop',
+                intro: 'Masa remaja adalah masa transisi yang penuh gejolak. Di era digital ini, tantangan orang tua bertambah dengan hadirnya media sosial. Bagaimana cara tetap terhubung tanpa mengekang?',
+                paragraphs: [
+                    {
+                        heading: 'Mendengarkan Tanpa Menghakimi',
+                        text: 'Kunci utama komunikasi adalah mendengarkan. Seringkali kita sebagai orang tua terburu-buru memberikan nasihat sebelum anak selesai bercerita. Cobalah teknik "Active Listening", di mana Anda mengulang kembali apa yang anak rasakan untuk memvalidasi emosi mereka.'
+                    },
+                    {
+                        heading: 'Buat Kesepakatan Digital Bersama',
+                        text: 'Alih-alih melarang penggunaan gadget secara sepihak, ajak remaja berdiskusi. Buat aturan "No Phone Zone" di meja makan yang berlaku untuk semua anggota keluarga, termasuk Ayah dan Bunda. Ini menciptakan rasa adil.'
+                    },
+                    {
+                        heading: 'Jadilah Teman, Bukan Pengawas',
+                        text: 'Remaja cenderung menutup diri jika merasa diawasi terus-menerus. Posisikan diri Anda sebagai teman diskusi yang asik. Tanyakan pendapat mereka tentang isu-isu terkini yang mereka lihat di internet. Ini akan membuka wawasan Anda tentang dunia mereka.'
+                    }
+                ]
+            },
+            relatedArticles: [
+                { id: 2, title: 'Mengenali Tanda Cyberbullying', category: 'Sekolah', image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=800' },
+                { id: 3, title: 'Pentingnya Me Time Ibu', category: 'Kesehatan Mental', image: 'https://images.unsplash.com/photo-1515023115689-589c33041d3c?q=80&w=800' },
+                { id: 4, title: 'Menu Bekal Sehat', category: 'Tips Praktis', image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=800' }
+            ]
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "layout/layout_app.html" %}
+{% block title %}Notifikasi - Amica{% endblock %}
+
+{% block content %}
+<div x-data="notificationData()" class="relative min-h-screen pb-20">
+
+    <div class="max-w-3xl mx-auto px-4 py-8 space-y-6">
+
+        <!-- 1. HEADER & ACTIONS -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Notifikasi</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Aktivitas terbaru untuk Anda.</p>
+            </div>
+            
+            <!-- Tombol Liquid Glass: Tandai Dibaca -->
+            <button @click="markAllRead" 
+                    class="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-blue-50/50 dark:bg-primary/10 text-primary hover:bg-blue-100 dark:hover:bg-primary/20 border border-blue-100 dark:border-white/5 transition-all active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span class="text-xs font-bold">Tandai Dibaca</span>
+            </button>
+        </div>
+
+        <!-- 2. NOTIFICATION LIST -->
+        <div class="space-y-3">
+            
+            <!-- Empty State -->
+            <div x-show="notifications.length === 0" class="text-center py-20" x-cloak>
+                <div class="inline-block p-4 rounded-full bg-gray-100 dark:bg-white/5 mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                </div>
+                <p class="text-gray-500 font-medium">Belum ada notifikasi baru.</p>
+            </div>
+
+            <!-- List Items -->
+            <template x-for="notif in notifications" :key="notif.id">
+                <div class="group relative overflow-hidden rounded-3xl transition-all duration-300 hover:shadow-md"
+                     :class="notif.read 
+                        ? 'bg-white dark:bg-cardDark border border-transparent' 
+                        : 'bg-blue-50/40 dark:bg-primary/5 border border-blue-100 dark:border-primary/20'">
+                    
+                    <div class="p-5 flex items-center gap-4">
+                        
+                        <!-- ICON INDICATOR (Left) -->
+                        <div class="relative shrink-0">
+                            <img :src="notif.avatar" class="w-12 h-12 rounded-full object-cover ring-4" 
+                                 :class="notif.read ? 'ring-gray-50 dark:ring-darkBg' : 'ring-white dark:ring-cardDark'">
+                            
+                            <!-- Icon Badge Absolute -->
+                            <div class="absolute -bottom-1 -right-1 p-1 rounded-full border-2 border-white dark:border-cardDark flex items-center justify-center shadow-sm"
+                                 :class="{
+                                     'bg-red-500 text-white': notif.type === 'like',
+                                     'bg-blue-500 text-white': notif.type === 'comment',
+                                     'bg-green-500 text-white': notif.type === 'follow',
+                                     'bg-purple-500 text-white': notif.type === 'system'
+                                 }">
+                                <svg x-show="notif.type === 'like'" class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <svg x-show="notif.type === 'comment'" class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+                                <svg x-show="notif.type === 'follow'" class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                <svg x-show="notif.type === 'system'" class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            </div>
+                        </div>
+
+                        <!-- TEXT CONTENT -->
+                        <div class="flex-1 min-w-0">
+                            <div class="text-sm text-gray-800 dark:text-gray-200">
+                                <span class="font-bold text-gray-900 dark:text-white" x-text="notif.name"></span>
+                                <span x-text="notif.message"></span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-1 font-medium" x-text="notif.time"></p>
+                        </div>
+
+                        <!-- RIGHT: PREVIEW (If Post related) -->
+                        <div x-show="notif.postImage" class="shrink-0">
+                            <img :src="notif.postImage" class="w-12 h-12 rounded-xl object-cover shadow-sm">
+                        </div>
+
+                        <!-- RIGHT: FOLLOW BACK (If Follow related) -->
+                        <div x-show="notif.type === 'follow'" class="shrink-0">
+                             <button class="px-3 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-blue-600 shadow-md shadow-blue-500/20 transition-all">
+                                 Ikuti Balik
+                             </button>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Unread Dot Indicator (Visual pop) -->
+                    <div x-show="!notif.read" class="absolute top-1/2 right-2 transform -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full"></div>
+
+                </div>
+            </template>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function notificationData() {
+        return {
+            notifications: [
+                {
+                    id: 1,
+                    type: 'like',
+                    name: 'Rahma',
+                    avatar: 'https://i.pravatar.cc/150?img=5',
+                    message: 'menyukai postingan Anda: "Tips menghadapi anak..."',
+                    time: '2 menit yang lalu',
+                    read: false,
+                    postImage: 'https://images.unsplash.com/photo-1484820540004-1426a5836e0e?q=80&w=150&auto=format&fit=crop'
+                },
+                {
+                    id: 2,
+                    type: 'comment',
+                    name: 'Dr. Anisa',
+                    avatar: 'https://i.pravatar.cc/150?img=31',
+                    message: 'mengomentari: "Setuju sekali, komunikasi itu kunci!"',
+                    time: '1 jam yang lalu',
+                    read: false,
+                    postImage: null
+                },
+                {
+                    id: 3,
+                    type: 'follow',
+                    name: 'Ayah Keren',
+                    avatar: 'https://i.pravatar.cc/150?img=32',
+                    message: 'mulai mengikuti Anda.',
+                    time: '3 jam yang lalu',
+                    read: true,
+                    postImage: null
+                },
+                {
+                    id: 4,
+                    type: 'system',
+                    name: 'Amica Team',
+                    avatar: '{{ url_for("static", filename="images/logo_light.png") }}', // Pake logo app
+                    message: 'Selamat datang di komunitas Amica! Lengkapi profilmu.',
+                    time: '1 hari yang lalu',
+                    read: true,
+                    postImage: null
+                }
+            ],
+
+            markAllRead() {
+                this.notifications.forEach(n => n.read = true);
+                // Disini nanti panggil API untuk update status di database
+            }
+        }
+    }
+</script>
+{% endblock %}
