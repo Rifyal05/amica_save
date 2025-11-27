@@ -139,3 +139,11 @@ CREATE TABLE messages (
     text TEXT NOT NULL,
     sent_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE TABLE blocked_users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    blocker_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    blocked_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (blocker_id, blocked_id)
+);

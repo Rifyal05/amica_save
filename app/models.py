@@ -92,6 +92,20 @@ class Feedback(db.Model):
     status = db.Column(db.String(20), default='new')
     created_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
 
+
+class BlockedUser(db.Model):
+    __tablename__ = 'blocked_users'
+    
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    blocker_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    blocked_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    timestamp = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('blocker_id', 'blocked_id', name='_blocker_blocked_uc'),)
+
+    blocker = db.relationship("User", foreign_keys=[blocker_id], backref="blocking_relationships")
+    blocked_user = db.relationship("User", foreign_keys=[blocked_id], backref="blocked_by_relationships")
+
 class SdqResult(db.Model):
     __tablename__ = 'sdq_results'
     id = db.Column(db.Integer, primary_key=True)
@@ -143,3 +157,5 @@ class Message(db.Model):
     sender_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     text = db.Column(db.Text, nullable=False)
     sent_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow)
+
+
