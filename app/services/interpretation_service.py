@@ -1,10 +1,15 @@
+from typing import Dict, Any
+
 class InterpretationService:
+    _instance = None
+    
+    # Ambang Batas (Cutoff Points) - Nilai maksimal untuk Normal dan Borderline
     CUTOFF_POINTS = {
-        'emotional': (3, 4),
-        'conduct': (2, 3),
-        'hyperactivity': (5, 6),
-        'peer': (2, 3),
-        'total': (13, 16)
+        'emotional': {'normal_max': 3, 'borderline_max': 6},
+        'conduct': {'normal_max': 3, 'borderline_max': 5},
+        'hyperactivity': {'normal_max': 5, 'borderline_max': 7},
+        'peer': {'normal_max': 3, 'borderline_max': 5},
+        'total': {'normal_max': 13, 'borderline_max': 16}
     }
 
     INTERPRETATION_TEXTS = {
@@ -55,15 +60,23 @@ class InterpretationService:
         }
     }
 
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(InterpretationService, cls).__new__(cls)
+        return cls._instance
+
     def _get_level(self, scale_name: str, score: int) -> str:
         points = self.CUTOFF_POINTS.get(scale_name)
         if not points: return "normal"
         
-        if score <= points[0]: return "normal"
-        elif score <= points[1]: return "borderline"
-        else: return "abnormal"
+        if score <= points['normal_max']: 
+            return "normal"
+        elif score <= points['borderline_max']: 
+            return "borderline"
+        else: 
+            return "abnormal"
 
-    def generate_full_interpretation(self, scores: dict) -> dict:
+    def generate_full_interpretation(self, scores: Dict[str, Any]) -> Dict[str, Any]:
         total_score = scores.get('total_difficulties_score', 0)
         total_level = self._get_level('total', total_score)
 
@@ -92,6 +105,8 @@ class InterpretationService:
         })
         
         return {
+            "total_score": total_score,
+            "total_level": total_level,
             "overall_summary": overall_summary,
             "detailed_breakdown": detailed_breakdown
         }
