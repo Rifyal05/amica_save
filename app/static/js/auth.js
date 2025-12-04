@@ -5,11 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            button.disabled = true;
-            window.dispatchEvent(new CustomEvent('loading:start'));
-            
-            const errorMessage = document.getElementById('error-message');
-            errorMessage.classList.add('hidden');
+            setLoadingState(true, button);
+            clearMessages();
 
             try {
                 const formData = new FormData(loginForm);
@@ -23,20 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem('authToken', result.token);
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    window.location.href = '/feed';
+                    handleLoginSuccess(result);
                 } else {
-                    errorMessage.textContent = result.error || 'Terjadi kesalahan.';
-                    errorMessage.classList.remove('hidden');
-                    button.disabled = false; 
-                    window.dispatchEvent(new CustomEvent('loading:stop'));
+                    showError(result.error || 'Terjadi kesalahan saat login.');
+                    setLoadingState(false, button);
                 }
             } catch (error) {
-                 errorMessage.textContent = 'Tidak bisa terhubung ke server.';
-                 errorMessage.classList.remove('hidden');
-                 button.disabled = false;
-                 window.dispatchEvent(new CustomEvent('loading:stop'));
+                 showError('Tidak bisa terhubung ke server.');
+                 setLoadingState(false, button);
             }
         });
     }
@@ -46,15 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = registerForm.querySelector('button[type="submit"]');
 
         registerForm.addEventListener('submit', async (event) => {
-            console.log('REGISTER HANDLER TERPASANG');
             event.preventDefault();
-            button.disabled = true;
-            window.dispatchEvent(new CustomEvent('loading:start'));
-            
-            const errorMessage = document.getElementById('error-message');
-            const successMessage = document.getElementById('success-message');
-            errorMessage.classList.add('hidden');
-            successMessage.classList.add('hidden');
+            setLoadingState(true, button);
+            clearMessages();
 
             try {
                 const formData = new FormData(registerForm);
@@ -69,29 +54,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     registerForm.reset();
-                    successMessage.textContent = 'Registrasi berhasil! Anda akan diarahkan ke halaman login...';
-                    successMessage.classList.remove('hidden');
+                    showSuccess('Registrasi berhasil! Mengalihkan ke halaman login...');
                     setTimeout(() => {
-                        window.location.href = '/login';
-                    }, 3000);
+                        window.location.href = '/login'; 
+                    }, 2000);
                 } else {
-                    errorMessage.textContent = result.error || 'Terjadi kesalahan.';
-                    errorMessage.classList.remove('hidden');
-                    button.disabled = false;
-                    window.dispatchEvent(new CustomEvent('loading:stop'));
+                    showError(result.error || 'Gagal mendaftar.');
+                    setLoadingState(false, button);
                 }
             } catch (error) {
-                 errorMessage.textContent = 'Tidak bisa terhubung ke server. Pastikan backend berjalan dan periksa terminalnya.';
-                 errorMessage.classList.remove('hidden');
-                 button.disabled = false;
-                 window.dispatchEvent(new CustomEvent('loading:stop'));
+                 showError('Tidak bisa terhubung ke server.');
+                 setLoadingState(false, button);
+            }
+        });
+    }
+
+    const googleBtn = document.getElementById('google-login-btn');
+    if (googleBtn) {
+        googleBtn.addEventListener('click', async () => {
+            
+            if (typeof firebase === 'undefined') {
+                showError("Sistem Google Login belum siap (Firebase SDK missing).");
+                return;
+            }
+
+            setLoadingState(true, googleBtn);
+            clearMessages();
+
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await firebase.auth().signInWithPopup(provider);
+                
+                const token = await result.user.getIdToken();
+
+                const response = await fetch('/api/auth/google-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token })
+                });
+
+                const apiResult = await response.json();
+
+                if (response.ok) {
+                    handleLoginSuccess(apiResult);
+                } else {
+                    throw new Error(apiResult.error || 'Gagal verifikasi Google Login.');
+                }
+
+            } catch (error) {
+                console.error("Google Auth Error:", error);
+                let msg = error.message;
+                if (error.code === 'auth/popup-closed-by-user') {
+                    msg = "Login dibatalkan (Popup ditutup).";
+                }
+                showError(msg);
+                setLoadingState(false, googleBtn);
             }
         });
     }
 });
 
+
+function setLoadingState(isLoading, buttonElement) {
+    if (isLoading) {
+        if(buttonElement) buttonElement.disabled = true;
+        window.dispatchEvent(new CustomEvent('loading:start')); 
+    } else {
+        if(buttonElement) buttonElement.disabled = false;
+        window.dispatchEvent(new CustomEvent('loading:stop'));
+    }
+}
+
+function handleLoginSuccess(result) {
+
+    localStorage.setItem('authToken', result.token);
+    localStorage.setItem('currentUser', JSON.stringify(result.user));
+    
+    window.location.href = '/feed';
+}
+
+function clearMessages() {
+    const errorEl = document.getElementById('error-message');
+    const successEl = document.getElementById('success-message');
+    if (errorEl) errorEl.classList.add('hidden');
+    if (successEl) successEl.classList.add('hidden');
+}
+
+function showError(message) {
+    const errorEl = document.getElementById('error-message');
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.remove('hidden');
+    } else {
+        alert(message); 
+    }
+}
+
+function showSuccess(message) {
+    const successEl = document.getElementById('success-message');
+    if (successEl) {
+        successEl.textContent = message;
+        successEl.classList.remove('hidden');
+    }
+}
+
 window.addEventListener('pageshow', () => {
-    const buttons = document.querySelectorAll('form button[type="submit"]');
-    buttons.forEach(button => button.disabled = false);
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => btn.disabled = false);
     window.dispatchEvent(new CustomEvent('loading:stop'));
 });

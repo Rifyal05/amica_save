@@ -1,12 +1,14 @@
 from flask import Blueprint, request, jsonify, current_app
-from ..models import Post, User, PostLike
-from ..database import db
+from ..models import Post, User, PostLike, Connection, db
 from ..utils.decorators import token_required
 from ..services.post_classification_service import post_classifier 
 from ..services.image_moderation_service import image_moderator
 import uuid
 import os
+import jwt
 from werkzeug.utils import secure_filename
+from datetime import datetime, timezone 
+
 
 post_bp = Blueprint('post', __name__)
 
@@ -90,6 +92,23 @@ def get_posts():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 10, type=int)
     
+    current_user_id = None
+    token = None
+    
+    # 1. SOFT AUTHENTICATION
+    if 'Authorization' in request.headers:
+        auth_header = request.headers['Authorization']
+        if auth_header and auth_header.startswith('Bearer '):
+            token = auth_header.split(" ")[1]
+    
+    if token:
+        try:
+            data = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=["HS256"])
+            current_user_id = data.get('user_id')
+        except:
+            current_user_id = None
+
+    # 2. QUERY DATABASE
     posts_query = db.session.query(
         Post.id, Post.caption, Post.tags, Post.image_url, Post.created_at, Post.likes_count, Post.comments_count,
         User.id.label('user_id'), User.display_name, User.username, User.avatar_url
@@ -97,23 +116,57 @@ def get_posts():
 
     paginated_posts = posts_query.paginate(page=page, per_page=per_page, error_out=False) # type: ignore
     
-    results = [
-        {
+    results = []
+    for post in paginated_posts.items:
+        # 3. CEK LIKE & FOLLOW
+        is_liked = False
+        is_following = False
+        
+        if current_user_id:
+            like_exists = PostLike.query.filter_by(
+                user_id=current_user_id, 
+                post_id=post.id
+            ).first()
+            if like_exists:
+                is_liked = True
+
+            if str(post.user_id) != str(current_user_id):
+                follow_exists = Connection.query.filter_by(
+                    follower_id=current_user_id,
+                    following_id=post.user_id
+                ).first()
+                if follow_exists:
+                    is_following = True
+        
+        dt = post.created_at
+        
+        if dt is not None:
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            else:
+                dt = dt.astimezone(timezone.utc)
+            created_at_str = dt.isoformat().replace('+00:00', 'Z')
+        else:
+            created_at_str = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+
+
+        results.append({
             "id": str(post.id),
             "caption": post.caption,
             "tags": post.tags,
             "image_url": post.image_url,
-            "created_at": post.created_at.isoformat(),
+            "created_at": created_at_str,
             "likes_count": post.likes_count,
             "comments_count": post.comments_count,
+            "is_liked": is_liked,
             "author": {
                 "id": str(post.user_id),
                 "display_name": post.display_name,
                 "username": post.username,
-                "avatar_url": post.avatar_url
+                "avatar_url": post.avatar_url,
+                "is_following": is_following
             }
-        } for post in paginated_posts.items
-    ]
+        })
     
     return jsonify({
         "posts": results,
@@ -121,7 +174,6 @@ def get_posts():
         "current_page": paginated_posts.page,
         "has_next": paginated_posts.has_next
     }), 200
-
 @post_bp.route('/<uuid:post_id>/like', methods=['POST'])
 @token_required
 def toggle_like(current_user, post_id):
@@ -134,7 +186,7 @@ def toggle_like(current_user, post_id):
     try:
         if like:
             db.session.delete(like)
-            post.likes_count -= 1
+            post.likes_count = max(0, post.likes_count - 1)
             liked = False
         else:
             new_like = PostLike()

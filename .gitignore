@@ -18,3 +18,4 @@ instance/
 *.joblib
 *.pkl
 alembic/.versions.cache
+serviceAccountKey.json

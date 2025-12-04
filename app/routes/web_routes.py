@@ -29,7 +29,6 @@ def guidebook_page():
 
 @web_bp.route('/guidebook/<int:article_id>')
 def article_detail(article_id):
-    # Nanti di sini kita ambil data dari DB: Article.query.get(article_id)
     return render_template('mainpage/article_detail.html')
 
 @web_bp.route('/chat')
@@ -43,3 +42,12 @@ def notifications_page():
 @web_bp.route('/discover')
 def discover_page():
     return render_template('mainpage/discover.html')
+
+@web_bp.route('/profile')
+def profile_page():
+    return render_template('mainpage/profile.html')
+
+
+@web_bp.route('/settings')
+def settings_page():
+    return render_template('mainpage/settings.html')

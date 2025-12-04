@@ -1,6 +1,4 @@
-#!/bin/bash
-
-echo "--- 1. Memulai Proses Migrasi Alembic ---"
+echo "1. Memulai Proses Migrasi Alembic"
 
 ALEMBIC_EXEC="./venv/bin/alembic"
 
@@ -19,4 +17,4 @@ ALEMBIC_RUNNING=true $ALEMBIC_EXEC revision --autogenerate -m "auto_migration_$(
 echo "Menerapkan semua migrasi yang tertunda..."
 ALEMBIC_RUNNING=true $ALEMBIC_EXEC upgrade head
 
-echo "--- Migrasi Selesai! ---"
+echo "Migrasi Selesai!"

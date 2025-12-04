@@ -1,3 +1,4 @@
+import os
 from flask import Flask, jsonify
 from .config import Config
 from .database import db
@@ -26,6 +27,18 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix='/api/user')
     app.register_blueprint(web_bp, url_prefix='/')
     app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
+    import os
+
+    @app.context_processor
+    def inject_firebase_config():
+        return dict(firebase_config={
+        "apiKey": os.environ.get('FIREBASE_API_KEY'),
+        "authDomain": os.environ.get('FIREBASE_AUTH_DOMAIN'),
+        "projectId": os.environ.get('FIREBASE_PROJECT_ID'),
+        "storageBucket": os.environ.get('FIREBASE_STORAGE_BUCKET'),
+        "messagingSenderId": os.environ.get('FIREBASE_MESSAGING_SENDER_ID'),
+        "appId": os.environ.get('FIREBASE_APP_ID')
+    })
 
         
     return app
